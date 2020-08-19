@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 
+# Usage: ./import_attester_slashings.py op_pool.json slashed_validators.txt
+# + op_pool.json is a JSON dump from Lighthouse's /advanced/op_pool endpoint
+# + slashed_validators.txt is a text file of already slashed validators,
+#   as produced by `get_slashed.sh`. Can be empty if you don't mind waiting.
+
 import sys
 import json
+import time
 import http.client
 
 LH_HOST = "localhost:5052"
-IMPORT_SLEEP = 5
+IMPORT_DELAY = 2
 SHOULD_IMPORT = True
-KEEP_GOING = False
+KEEP_GOING = True
 
 def get_useful_slashings(op_pool_filename, slashed_validators_filename):
     op_pool = None
@@ -42,7 +48,13 @@ def import_to_beacon_node(useful_slashings):
         conn.request("POST", "/beacon/attester_slashing", body=json.dumps(slashing))
         res = conn.getresponse()
         if res.status != 200:
-            print("HTTP request failed!")
+            body = res.read()
+            if res.status == 400 and body == b"Attester slashing only covers already slashed indices":
+                print("Already known")
+            else:
+                print("Failed with status {}".format(res.status))
+                print(body)
+
             if not KEEP_GOING:
                 print("Exiting!")
                 exit(1)
