@@ -4,6 +4,7 @@
 # + op_pool.json is a JSON dump from Lighthouse's /advanced/op_pool endpoint
 # + slashed_validators.txt is a text file of already slashed validators,
 #   as produced by `get_slashed.sh`. Can be empty if you don't mind waiting.
+# FIXME: needs updating for standard API
 
 import sys
 import json
