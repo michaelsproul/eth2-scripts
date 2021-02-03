@@ -4,7 +4,7 @@
 # + op_pool.json is a JSON dump from Lighthouse's /advanced/op_pool endpoint
 # + slashed_validators.txt is a text file of already slashed validators,
 #   as produced by `get_slashed.sh`. Can be empty if you don't mind waiting.
-# FIXME: needs updating for standard API
+# FIXME: import needs updating for std API
 
 import sys
 import json
@@ -13,8 +13,9 @@ import http.client
 
 LH_HOST = "localhost:5052"
 IMPORT_DELAY = 2
-SHOULD_IMPORT = True
+SHOULD_IMPORT = False
 KEEP_GOING = True
+PRINT_SLASHED_INDICES = True
 
 def get_useful_slashings(op_pool_filename, slashed_validators_filename):
     op_pool = None
@@ -28,9 +29,9 @@ def get_useful_slashings(op_pool_filename, slashed_validators_filename):
     useful_slashings = []
     new_slashed_validators = set()
 
-    for [slashing, _] in op_pool["attester_slashings"]:
-        att1_indices = set(slashing["attestation_1"]["attesting_indices"])
-        att2_indices = set(slashing["attestation_2"]["attesting_indices"])
+    for slashing in op_pool["data"]:
+        att1_indices = set(int(x) for x in slashing["attestation_1"]["attesting_indices"])
+        att2_indices = set(int(x) for x in slashing["attestation_2"]["attesting_indices"])
         slashed_indices = att1_indices.intersection(att2_indices)
         new_slashed_indices = slashed_indices - already_slashed_validators - new_slashed_validators
 
@@ -39,6 +40,9 @@ def get_useful_slashings(op_pool_filename, slashed_validators_filename):
             useful_slashings.append(slashing)
 
     print("Found {} useful slashings and {} validators to slash".format(len(useful_slashings), len(new_slashed_validators)))
+    if PRINT_SLASHED_INDICES:
+        for validator in new_slashed_validators:
+            print("{}".format(validator))
     return useful_slashings
 
 def import_to_beacon_node(useful_slashings):
