@@ -1,3 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-curl -s "http://localhost:5052/eth/v1/debug/beacon/heads" | jq .data
+source $(eth2_scripts_dir.sh)/setup.sh
+
+curl "$BEACON_NODE/eth/v1/debug/beacon/heads" | jq .data
