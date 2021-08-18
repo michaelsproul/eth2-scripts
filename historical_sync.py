@@ -40,10 +40,16 @@ def main():
         res = local.getresponse()
         res_json = json.loads(res.read().decode())
         assert res.status == 200
-        oldest_block_slot = int(res_json["oldest_block_slot"])
+
+        if len(blocks) > 0:
+            # If we uploaded more than 1 block, then take the oldest block slot from the response
+            oldest_block_slot = int(res_json["oldest_block_slot"])
+        else:
+            # In the case of a skip larger than the batch size, backtrack by that amount
+            oldest_block_slot = batch_start
 
         remaining = max(oldest_block_slot - 1, 0)
-        print("uploaded {} blocks, {} remaining".format(batch_end - batch_start, remaining))
+        print("uploaded {} blocks, {} remaining".format(len(blocks), remaining))
 
 if __name__ == "__main__":
     main()
