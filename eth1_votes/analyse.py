@@ -25,4 +25,4 @@ for (vote, count) in sorted(vote_counts.items(), key=lambda v: (-v[1], v[0].bloc
 slot = int(state["data"]["slot"])
 slots_remaining = 2048 - (slot % 2048) - 1
 print("total votes in period: {}, slots remaining: {}".format(len(votes), slots_remaining))
-print("participation: {}%".format(round(100 * len(votes) / (slot % 2048), 2)))
+print("participation: {}%".format(round(100 * len(votes) / ((slot % 2048) + 1), 2)))
