@@ -9,4 +9,4 @@ shopt -s expand_aliases
 export BEACON_NODE="${BEACON_NODE:-http://localhost:5052}"
 
 # Set up curl to fail on errors from the remote.
-alias curl="curl --fail --no-progress-meter"
+alias curl="curl --fail-with-body --no-progress-meter"
